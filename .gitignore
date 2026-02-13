@@ -1,0 +1,25 @@
+# Dodaj te pliki do .gitignore
+
+# Zależności
+node_modules/
+package-lock.json
+
+# Pliki środowiskowe (WAŻNE - nigdy nie commitować!)
+.env
+
+# Logi
+*.log
+npm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# System
+.DS_Store
+Thumbs.db
+
+# Sesje
+sessions/

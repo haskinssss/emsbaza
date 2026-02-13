@@ -2,85 +2,85 @@
 
 // Domyślne ustawienia
 const DEFAULT_SETTINGS = {
-    darkMode: true,
-    animations: true,
-    accentColor: '#8b5cf6'
-};
+	darkMode: true,
+	animations: true,
+	accentColor: '#8b5cf6',
+}
 
 // Załaduj ustawienia przy starcie
 document.addEventListener('DOMContentLoaded', () => {
-    loadAndApplySettings();
-    initAccentColorPicker();
-});
+	loadAndApplySettings()
+	initAccentColorPicker()
+})
 
 // Załaduj ustawienia z localStorage
 function loadSettings() {
-    const savedSettings = localStorage.getItem('emsSettings');
-    if (savedSettings) {
-        try {
-            return JSON.parse(savedSettings);
-        } catch (e) {
-            console.error('Error loading settings:', e);
-            return DEFAULT_SETTINGS;
-        }
-    }
-    return DEFAULT_SETTINGS;
+	const savedSettings = localStorage.getItem('emsSettings')
+	if (savedSettings) {
+		try {
+			return JSON.parse(savedSettings)
+		} catch (e) {
+			console.error('Error loading settings:', e)
+			return DEFAULT_SETTINGS
+		}
+	}
+	return DEFAULT_SETTINGS
 }
 
 // Zapisz ustawienia do localStorage
 function saveSettings(settings) {
-    localStorage.setItem('emsSettings', JSON.stringify(settings));
+	localStorage.setItem('emsSettings', JSON.stringify(settings))
 }
 
 // Załaduj i zastosuj ustawienia
 function loadAndApplySettings() {
-    const settings = loadSettings();
-    
-    // Zastosuj dark mode
-    if (settings.darkMode) {
-        document.body.classList.remove('light-mode');
-    } else {
-        document.body.classList.add('light-mode');
-    }
-    
-    // Zastosuj animacje
-    if (!settings.animations) {
-        document.body.classList.add('no-animations');
-    } else {
-        document.body.classList.remove('no-animations');
-    }
-    
-    // Zastosuj kolor accent'u
-    applyAccentColor(settings.accentColor);
+	const settings = loadSettings()
+
+	// Zastosuj dark mode
+	if (settings.darkMode) {
+		document.body.classList.remove('light-mode')
+	} else {
+		document.body.classList.add('light-mode')
+	}
+
+	// Zastosuj animacje
+	if (!settings.animations) {
+		document.body.classList.add('no-animations')
+	} else {
+		document.body.classList.remove('no-animations')
+	}
+
+	// Zastosuj kolor accent'u
+	applyAccentColor(settings.accentColor)
 }
 
 // Zmieni kolor accent'u
 function applyAccentColor(color) {
-    console.log('Applying accent color:', color);
-    const rgb = hexToRgb(color);
-    if (!rgb) {
-        console.error('Invalid color format:', color);
-        return;
-    }
-    
-    console.log('RGB values:', rgb);
-    document.documentElement.style.setProperty('--accent-primary', color);
-    generateAccentCSS(color, rgb);
-    console.log('Accent color applied successfully');
+	console.log('Applying accent color:', color)
+	const rgb = hexToRgb(color)
+	if (!rgb) {
+		console.error('Invalid color format:', color)
+		return
+	}
+
+	console.log('RGB values:', rgb)
+	document.documentElement.style.setProperty('--accent-primary', color)
+	generateAccentCSS(color, rgb)
+	console.log('Accent color applied successfully')
 }
 
 // Generuj dynamiczny CSS dla accent koloru
 function generateAccentCSS(hexColor, rgb) {
-    let styleId = 'accent-color-style';
-    let existingStyle = document.getElementById(styleId);
-    
-    if (existingStyle) {
-        existingStyle.remove();
-    }
-    
-    const style = document.createElement('style');
-    style.id = styleId;
-    style.textContent = `
+	let styleId = 'accent-color-style'
+	let existingStyle = document.getElementById(styleId)
+
+	if (existingStyle) {
+		existingStyle.remove()
+	}
+
+	const style = document.createElement('style')
+	style.id = styleId
+	style.textContent = `
         :root {
             --accent-primary: ${hexColor} !important;
         }
@@ -150,12 +150,21 @@ function generateAccentCSS(hexColor, rgb) {
         .modal-header {
             border-bottom: 2px solid rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.5) !important;
         }
-        
+        .emoji-picker-container {
+            border: 2px solid rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.4) !important;
+        }
+        .emoji-option {
+            border: 2px solid rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.3) !important; 
+            background: rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.1) !important;
+        }
         .modal-body input, .modal-body textarea, .modal-body select {
             border: 2px solid rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.4) !important;
             box-shadow: 0 2px 4px rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.1) !important;
         }
-        
+        .topicDesc, #topicName, #topicCategory, #topicEmoji {
+            border: 2px solid rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.4) !important;
+        }
+
         .modal-body input:focus, .modal-body textarea:focus, .modal-body select:focus {
             border-color: rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.8) !important;
             box-shadow: 0 0 0 4px rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.3) !important;
@@ -400,193 +409,195 @@ function generateAccentCSS(hexColor, rgb) {
             border-color: rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.6) !important;
             box-shadow: 0 0 0 3px rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.1) !important;
         }
-    `;
-    
-    // Dodaj na końcu head - z wyższą specyficznością CSS nadpisze bazowy plik
-    document.head.appendChild(style);
+    `
+
+	// Dodaj na końcu head - z wyższą specyficznością CSS nadpisze bazowy plik
+	document.head.appendChild(style)
 }
 
 // Konwertuj hex na RGB
 function hexToRgb(hex) {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-    } : null;
+	const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+	return result
+		? {
+				r: parseInt(result[1], 16),
+				g: parseInt(result[2], 16),
+				b: parseInt(result[3], 16),
+			}
+		: null
 }
 
 // Inicjalizuj color picker
 function initAccentColorPicker() {
-    const colorPicker = document.getElementById('accentColorPicker');
-    const presets = document.querySelectorAll('.accent-preset');
-    const settings = loadSettings();
-    
-    if (!colorPicker) return;
-    
-    // Ustaw aktualny kolor
-    colorPicker.value = settings.accentColor;
-    updateActivePreset(settings.accentColor);
-    
-    // Obsługa change'u color pickera
-    colorPicker.addEventListener('change', (e) => {
-        const color = e.target.value;
-        settings.accentColor = color;
-        saveSettings(settings);
-        applyAccentColor(color);
-        updateActivePreset(color);
-        showToast('Kolor obramowania zmieniony! 🎨', 'success', 3000);
-    });
-    
-    colorPicker.addEventListener('input', (e) => {
-        const color = e.target.value;
-        applyAccentColor(color);
-        updateActivePreset(color);
-    });
-    
-    // Obsługa preset buttonów
-    presets.forEach(preset => {
-        preset.addEventListener('click', (e) => {
-            e.preventDefault();
-            const color = preset.dataset.color;
-            colorPicker.value = color;
-            settings.accentColor = color;
-            saveSettings(settings);
-            applyAccentColor(color);
-            updateActivePreset(color);
-            showToast('Kolor obramowania zmieniony! 🎨', 'success', 3000);
-        });
-    });
+	const colorPicker = document.getElementById('accentColorPicker')
+	const presets = document.querySelectorAll('.accent-preset')
+	const settings = loadSettings()
+
+	if (!colorPicker) return
+
+	// Ustaw aktualny kolor
+	colorPicker.value = settings.accentColor
+	updateActivePreset(settings.accentColor)
+
+	// Obsługa change'u color pickera
+	colorPicker.addEventListener('change', e => {
+		const color = e.target.value
+		settings.accentColor = color
+		saveSettings(settings)
+		applyAccentColor(color)
+		updateActivePreset(color)
+		showToast('Kolor obramowania zmieniony! 🎨', 'success', 3000)
+	})
+
+	colorPicker.addEventListener('input', e => {
+		const color = e.target.value
+		applyAccentColor(color)
+		updateActivePreset(color)
+	})
+
+	// Obsługa preset buttonów
+	presets.forEach(preset => {
+		preset.addEventListener('click', e => {
+			e.preventDefault()
+			const color = preset.dataset.color
+			colorPicker.value = color
+			settings.accentColor = color
+			saveSettings(settings)
+			applyAccentColor(color)
+			updateActivePreset(color)
+			showToast('Kolor obramowania zmieniony! 🎨', 'success', 3000)
+		})
+	})
 }
 
 // Zaktualizuj active preset
 function updateActivePreset(color) {
-    const presets = document.querySelectorAll('.accent-preset');
-    presets.forEach(preset => {
-        if (preset.dataset.color === color) {
-            preset.classList.add('active');
-        } else {
-            preset.classList.remove('active');
-        }
-    });
+	const presets = document.querySelectorAll('.accent-preset')
+	presets.forEach(preset => {
+		if (preset.dataset.color === color) {
+			preset.classList.add('active')
+		} else {
+			preset.classList.remove('active')
+		}
+	})
 }
 
 // Przełącz dark mode
 function toggleDarkMode() {
-    const settings = loadSettings();
-    settings.darkMode = !settings.darkMode;
-    saveSettings(settings);
-    
-    if (settings.darkMode) {
-        document.body.classList.remove('light-mode');
-        animateTransition();
-    } else {
-        document.body.classList.add('light-mode');
-        animateTransition();
-    }
+	const settings = loadSettings()
+	settings.darkMode = !settings.darkMode
+	saveSettings(settings)
+
+	if (settings.darkMode) {
+		document.body.classList.remove('light-mode')
+		animateTransition()
+	} else {
+		document.body.classList.add('light-mode')
+		animateTransition()
+	}
 }
 
 // Przełącz animacje
 function toggleAnimations() {
-    const settings = loadSettings();
-    settings.animations = !settings.animations;
-    saveSettings(settings);
-    
-    if (settings.animations) {
-        document.body.classList.remove('no-animations');
-    } else {
-        document.body.classList.add('no-animations');
-    }
+	const settings = loadSettings()
+	settings.animations = !settings.animations
+	saveSettings(settings)
+
+	if (settings.animations) {
+		document.body.classList.remove('no-animations')
+	} else {
+		document.body.classList.add('no-animations')
+	}
 }
 
 // Animacja przejścia przy zmianie motywu
 function animateTransition() {
-    const settings = loadSettings();
-    if (!settings.animations) return;
-    
-    document.body.style.transition = 'background-color 0.5s ease, color 0.5s ease';
-    
-    setTimeout(() => {
-        document.body.style.transition = '';
-    }, 500);
+	const settings = loadSettings()
+	if (!settings.animations) return
+
+	document.body.style.transition = 'background-color 0.5s ease, color 0.5s ease'
+
+	setTimeout(() => {
+		document.body.style.transition = ''
+	}, 500)
 }
 // ===== TOAST NOTIFICATION SYSTEM =====
 // Inicjalizuj kontener notyfikacji
 function initToastContainer() {
-    if (!document.getElementById('toast-container')) {
-        const container = document.createElement('div');
-        container.id = 'toast-container';
-        container.className = 'toast-container';
-        document.body.appendChild(container);
-    }
+	if (!document.getElementById('toast-container')) {
+		const container = document.createElement('div')
+		container.id = 'toast-container'
+		container.className = 'toast-container'
+		document.body.appendChild(container)
+	}
 }
 
 // Pokaż toast notyfikację
 function showToast(message, type = 'success', duration = 4000) {
-    initToastContainer();
-    
-    const container = document.getElementById('toast-container');
-    const toast = document.createElement('div');
-    
-    // Mapuj typy na ikony i kolory
-    const icons = {
-        success: '✓',
-        error: '❌',
-        warning: '⚠',
-        info: 'ℹ'
-    };
-    
-    const icon = icons[type] || '◆';
-    
-    toast.className = `toast ${type}`;
-    toast.innerHTML = `
+	initToastContainer()
+
+	const container = document.getElementById('toast-container')
+	const toast = document.createElement('div')
+
+	// Mapuj typy na ikony i kolory
+	const icons = {
+		success: '✓',
+		error: '❌',
+		warning: '⚠',
+		info: 'ℹ',
+	}
+
+	const icon = icons[type] || '◆'
+
+	toast.className = `toast ${type}`
+	toast.innerHTML = `
         <div class="toast-icon">${icon}</div>
         <div class="toast-message">${message}</div>
         <button class="toast-close">×</button>
         <div class="toast-progress" style="width: 100%;"></div>
-    `;
-    
-    container.appendChild(toast);
-    
-    // Obsługa zamykania
-    const closeBtn = toast.querySelector('.toast-close');
-    const removeToast = () => {
-        toast.classList.add('removing');
-        setTimeout(() => {
-            toast.remove();
-        }, 300);
-    };
-    
-    closeBtn.addEventListener('click', removeToast);
-    
-    // Auto-remove po duration
-    if (duration > 0) {
-        const progressBar = toast.querySelector('.toast-progress');
-        progressBar.style.animation = `none`;
-        progressBar.style.transition = `width ${duration}ms linear`;
-        
-        // Trigger animation
-        setTimeout(() => {
-            progressBar.style.width = '0';
-        }, 10);
-        
-        setTimeout(removeToast, duration);
-    }
-    
-    return toast;
+    `
+
+	container.appendChild(toast)
+
+	// Obsługa zamykania
+	const closeBtn = toast.querySelector('.toast-close')
+	const removeToast = () => {
+		toast.classList.add('removing')
+		setTimeout(() => {
+			toast.remove()
+		}, 300)
+	}
+
+	closeBtn.addEventListener('click', removeToast)
+
+	// Auto-remove po duration
+	if (duration > 0) {
+		const progressBar = toast.querySelector('.toast-progress')
+		progressBar.style.animation = `none`
+		progressBar.style.transition = `width ${duration}ms linear`
+
+		// Trigger animation
+		setTimeout(() => {
+			progressBar.style.width = '0'
+		}, 10)
+
+		setTimeout(removeToast, duration)
+	}
+
+	return toast
 }
 
 // Króćsze wersje dla różnych typów
-window.showSuccessToast = (msg, duration = 3000) => showToast(msg, 'success', duration);
-window.showErrorToast = (msg, duration = 4000) => showToast(msg, 'error', duration);
-window.showWarningToast = (msg, duration = 3500) => showToast(msg, 'warning', duration);
-window.showInfoToast = (msg, duration = 3000) => showToast(msg, 'info', duration);
-window.showToast = showToast;
+window.showSuccessToast = (msg, duration = 3000) => showToast(msg, 'success', duration)
+window.showErrorToast = (msg, duration = 4000) => showToast(msg, 'error', duration)
+window.showWarningToast = (msg, duration = 3500) => showToast(msg, 'warning', duration)
+window.showInfoToast = (msg, duration = 3000) => showToast(msg, 'info', duration)
+window.showToast = showToast
 // Eksportuj funkcje dla użycia w innych plikach
 window.emsSettings = {
-    load: loadSettings,
-    save: saveSettings,
-    toggleDarkMode,
-    toggleAnimations,
-    loadAndApply: loadAndApplySettings
-};
+	load: loadSettings,
+	save: saveSettings,
+	toggleDarkMode,
+	toggleAnimations,
+	loadAndApply: loadAndApplySettings,
+}
