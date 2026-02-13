@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kompendium Medyczne</title>
+    <link rel="icon" type="image/png" href="Emergency.png">
+    <link rel="stylesheet" href="styles.css?v=20260213h">
+</head>
+<body class="knowledge-base-theme">
+    <nav class="top-navbar">
+        <div class="navbar-left">
+            <img src="Emergency.png" alt="EMS Logo" class="navbar-logo">
+            <h1>Kompendium Medyczne</h1>
+        </div>
+        <div class="navbar-right">
+            <div class="menu-container">
+                <button class="menu-btn">Menu ▼</button>
+                <div class="dropdown-menu">
+                    <a href="baza-wiedzy.html">🏠 Strona główna</a>
+                    <a href="ustawienia.html">⚙️ Ustawienia</a>
+                    <a href="#" id="logoutBtn">🚪 Wyloguj</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <main class="main-content">
+        <div class="welcome-section">
+            <h2>Kompendium Medyczne</h2>
+            <button class="user-profile-btn" id="userProfileBtn"><span id="userName">Ładowanie...</span></button>
+            <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
+                <button class="add-topic-btn" id="addTopicBtn">+ Dodaj temat</button>
+                <button class="add-topic-btn" id="manageCategoriesBtn">🏷️ Zarządzaj kategoriami</button>
+            </div>
+        </div>
+        
+        <div class="knowledge-base-container">
+            <div class="topics-grid" id="topicsGrid">
+                <!-- Tutaj będą się pojawiać kafelki -->
+            </div>
+        </div>
+    </main>
+    
+    <!-- Modal do dodawania/edytowania tematu -->
+    <div class="modal" id="addTopicModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="topicModalTitle">Dodaj nowy temat</h3>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <label for="topicCategory">Kategoria:</label>
+                <select id="topicCategory"></select>
+                
+                <label for="topicName">Nazwa tematu:</label>
+                <input type="text" id="topicName" placeholder="np. Układ nerwowy" maxlength="50">
+                
+                <label for="topicEmoji">Emoji (kliknij aby wybrać):</label>
+                <div class="emoji-picker-container">
+                    <input type="text" id="topicEmoji" placeholder="Wybrane emoji pojawi się tutaj" maxlength="1" class="emoji-input">
+                    <div id="emojiSuggestions" class="emoji-suggestions">
+                        😀 😃 😄 😁 😆 😅 🤣 😂 🫀 💪 🔴 💊 🚑 📋 📖 🧬 🦴 👁️ 🧠 ❤️ 🫁
+                    </div>
+                </div>
+                
+                <label for="topicDesc">Opis tematu:</label>
+                <textarea id="topicDesc" placeholder="Krótki opis tematu..." maxlength="200" rows="3"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" id="cancelBtn">Anuluj</button>
+                <button class="btn-confirm" id="confirmBtn">Dodaj</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal do zarządzania kategoriami -->
+    <div class="modal" id="manageCategoriesModal" style="display: none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>Zarządzaj kategoriami</h3>
+                <button class="modal-close" id="closeCategoriesModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="categoriesList" style="display: flex; flex-direction: column; gap: 15px;"></div>
+                <button class="add-category-btn" id="addCategoryBtn">+ Dodaj nową kategorię</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal do dodawania/edytowania kategorii -->
+    <div class="modal" id="editCategoryModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="categoryModalTitle">Dodaj kategorię</h3>
+                <button class="modal-close" id="closeCategoryEditModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <label for="categoryEmoji">Emoji (kliknij aby wybrać):</label>
+                <div class="emoji-picker-container">
+                    <input type="text" id="categoryEmoji" placeholder="Wybrane emoji pojawi się tutaj" maxlength="1" class="emoji-input">
+                    <div id="categoryEmojiSuggestions" class="emoji-suggestions">
+                        🫀 💪 🔴 💊 🚑 📋 📖 🧬 🦴 👁️ 🧠 ❤️ 🫁 🩺 🏥 ⚕️ 💉 🔬 🩹
+                    </div>
+                </div>
+                
+                <label for="categoryName">Nazwa kategorii:</label>
+                <input type="text" id="categoryName" placeholder="np. Anatomia" maxlength="30">
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" id="cancelCategoryBtn">Anuluj</button>
+                <button class="btn-confirm" id="confirmCategoryBtn">Zapisz</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="auth.js"></script>
+    <script src="settings.js?v=20260213j"></script>
+    <script>
+        // Domyślne kategorie
+        const DEFAULT_CATEGORIES = [
+            { name: 'Anatomia', emoji: '🫀' },
+            { name: 'Fizjologia', emoji: '💪' },
+            { name: 'Patologia', emoji: '🔴' },
+            { name: 'Farmakologia', emoji: '💊' },
+            { name: 'Pierwsza pomoc', emoji: '🚑' },
+            { name: 'Procedury', emoji: '📋' }
+        ];
+        
+        let topics = JSON.parse(localStorage.getItem('medicalTopics')) || [];
+        let categories = JSON.parse(localStorage.getItem('medicalCategories')) || DEFAULT_CATEGORIES;
+        let editingTopicIndex = null;
+        let editingCategoryIndex = null;
+        
+        // Aktualizuj dropdown kategorii
+        function updateCategorySelect() {
+            const select = document.getElementById('topicCategory');
+            select.innerHTML = '';
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.name;
+                option.textContent = cat.emoji + ' ' + cat.name;
+                select.appendChild(option);
+            });
+        }
+        
+        // Renderuj tematy
+        function renderTopics() {
+            const grid = document.getElementById('topicsGrid');
+            grid.innerHTML = '';
+            
+            if (topics.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 40px;">Brak tematów. Dodaj pierwszy temat!</p>';
+                return;
+            }
+            
+            const groupedTopics = {};
+            topics.forEach((topic, index) => {
+                const category = topic.category || 'Inne';
+                if (!groupedTopics[category]) {
+                    groupedTopics[category] = [];
+                }
+                groupedTopics[category].push({ ...topic, index });
+            });
+            
+            Object.keys(groupedTopics).forEach(category => {
+                const categoryObj = categories.find(c => c.name === category);
+                const emoji = categoryObj ? categoryObj.emoji : '📂';
+                
+                const categoryHeader = document.createElement('div');
+                categoryHeader.className = 'category-header';
+                categoryHeader.style.gridColumn = '1/-1';
+                categoryHeader.innerHTML = `<h3>${emoji} ${category}</h3>`;
+                grid.appendChild(categoryHeader);
+                
+                groupedTopics[category].forEach((topic) => {
+                    const tile = document.createElement('div');
+                    tile.className = 'topic-tile';
+                    tile.innerHTML = `
+                        <button class="edit-topic-btn" data-index="${topic.index}" title="Edytuj temat">✏️</button>
+                        <button class="delete-topic-btn" data-index="${topic.index}" title="Usuń temat">🗑️</button>
+                        <div class="topic-icon">${topic.emoji || '📖'}</div>
+                        <h3>${topic.name}</h3>
+                        <p class="topic-desc">${topic.description || ''}</p>
+                    `;
+                    
+                    tile.addEventListener('click', function(e) {
+                        if (!e.target.classList.contains('delete-topic-btn') && !e.target.classList.contains('edit-topic-btn')) {
+                            window.location.href = `temat.html?id=${topic.index}`;
+                        }
+                    });
+                    
+                    grid.appendChild(tile);
+                });
+            });
+            
+            document.querySelectorAll('.edit-topic-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const index = parseInt(this.getAttribute('data-index'));
+                    editTopic(index);
+                });
+            });
+            
+            document.querySelectorAll('.delete-topic-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const index = parseInt(this.getAttribute('data-index'));
+                    const topicName = topics[index].name;
+                    
+                    showDeleteConfirmation(topicName, () => {
+                        topics.splice(index, 1);
+                        localStorage.setItem('medicalTopics', JSON.stringify(topics));
+                        showErrorToast(`Temat "${topicName}" został usunięty`);
+                        renderTopics();
+                    });
+                });
+            });
+        }
+        
+        // Edytuj temat
+        function editTopic(index) {
+            editingTopicIndex = index;
+            const topic = topics[index];
+            document.getElementById('topicModalTitle').textContent = 'Edytuj temat';
+            document.getElementById('topicCategory').value = topic.category;
+            document.getElementById('topicName').value = topic.name;
+            document.getElementById('topicEmoji').value = topic.emoji || '';
+            document.getElementById('topicDesc').value = topic.description;
+            document.getElementById('confirmBtn').textContent = 'Zapisz';
+            document.getElementById('addTopicModal').style.display = 'flex';
+            document.getElementById('topicName').focus();
+        }
+        
+        // Emoji suggestions
+        function setupEmojiPicker(inputId, suggestionsId) {
+            const input = document.getElementById(inputId);
+            const suggestions = document.getElementById(suggestionsId);
+            
+            if (!suggestions) return;
+            
+            input.readOnly = true;
+            input.style.cursor = 'default';
+            
+            const emojiText = suggestions.textContent.trim();
+            suggestions.innerHTML = '';
+            
+            Array.from(emojiText.split(' ')).forEach(emoji => {
+                if (emoji) {
+                    const span = document.createElement('span');
+                    span.textContent = emoji;
+                    span.className = 'emoji-option';
+                    span.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        input.value = emoji;
+                        document.querySelectorAll(`#${suggestionsId} span`).forEach(s => s.classList.remove('selected'));
+                        span.classList.add('selected');
+                    });
+                    suggestions.appendChild(span);
+                }
+            });
+        }
+        
+        // Zarządzaj kategoriami
+        function showManageCategories() {
+            const list = document.getElementById('categoriesList');
+            list.innerHTML = '';
+            
+            categories.forEach((cat, idx) => {
+                const item = document.createElement('div');
+                item.className = 'category-card';
+                item.innerHTML = `
+                    <span class="category-card-name">${cat.emoji} ${cat.name}</span>
+                    <div class="category-card-actions">
+                        <button class="edit-cat-btn btn-edit" data-index="${idx}">✏️ Edytuj</button>
+                        <button class="delete-cat-btn btn-delete" data-index="${idx}">🗑️ Usuń</button>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+            
+            document.querySelectorAll('.edit-cat-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const idx = parseInt(btn.getAttribute('data-index'));
+                    editingCategoryIndex = idx;
+                    document.getElementById('categoryModalTitle').textContent = 'Edytuj kategorię';
+                    document.getElementById('categoryEmoji').value = categories[idx].emoji;
+                    document.getElementById('categoryName').value = categories[idx].name;
+                    document.getElementById('confirmCategoryBtn').textContent = 'Zapisz';
+                    document.getElementById('editCategoryModal').style.display = 'flex';
+                });
+            });
+            
+            document.querySelectorAll('.delete-cat-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const idx = parseInt(btn.getAttribute('data-index'));
+                    const catName = categories[idx].name;
+                    if (confirm(`Czy na pewno usunąć kategorię "${catName}"?`)) {
+                        categories.splice(idx, 1);
+                        localStorage.setItem('medicalCategories', JSON.stringify(categories));
+                        updateCategorySelect();
+                        showManageCategories();
+                        showSuccessToast(`Kategoria "${catName}" usunięta`);
+                    }
+                });
+            });
+            
+            document.getElementById('manageCategoriesModal').style.display = 'flex';
+        }
+        
+        function showDeleteConfirmation(name, onConfirm) {
+            const backdrop = document.createElement('div');
+            backdrop.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 5000;';
+            
+            const dialog = document.createElement('div');
+            dialog.style.cssText = 'background: var(--bg-card); border-radius: 16px; padding: 30px; max-width: 500px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);';
+            dialog.innerHTML = `
+                <h3 style="margin-bottom: 10px; color: var(--text-primary);">Potwierdzenie usunięcia</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 30px;">Czy na pewno chcesz usunąć "<strong>${name}</strong>"?</p>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button class="btn-cancel-delete" style="background: rgba(255,255,255,0.1); color: var(--text-primary); border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-weight: 500;">Anuluj</button>
+                    <button class="btn-confirm-delete" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-weight: 500;">Usuń</button>
+                </div>
+            `;
+            
+            backdrop.appendChild(dialog);
+            document.body.appendChild(backdrop);
+            
+            dialog.querySelector('.btn-cancel-delete').addEventListener('click', () => backdrop.remove());
+            dialog.querySelector('.btn-confirm-delete').addEventListener('click', () => {
+                backdrop.remove();
+                onConfirm();
+            });
+            
+            backdrop.addEventListener('click', (e) => {
+                if (e.target === backdrop) backdrop.remove();
+            });
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEmojiPicker('topicEmoji', 'emojiSuggestions');
+            setupEmojiPicker('categoryEmoji', 'categoryEmojiSuggestions');
+            updateCategorySelect();
+            
+            const topicModal = document.getElementById('addTopicModal');
+            const categoriesModal = document.getElementById('manageCategoriesModal');
+            const categoryEditModal = document.getElementById('editCategoryModal');
+            
+            // Topic Modal
+            document.getElementById('addTopicBtn').addEventListener('click', () => {
+                editingTopicIndex = null;
+                document.getElementById('topicModalTitle').textContent = 'Dodaj nowy temat';
+                document.getElementById('topicCategory').value = categories[0]?.name || 'Anatomia';
+                document.getElementById('topicName').value = '';
+                document.getElementById('topicEmoji').value = '';
+                document.getElementById('topicDesc').value = '';
+                document.getElementById('confirmBtn').textContent = 'Dodaj';
+                topicModal.style.display = 'flex';
+                document.getElementById('topicName').focus();
+            });
+            
+            document.getElementById('closeModal').addEventListener('click', () => {
+                topicModal.style.display = 'none';
+            });
+            
+            document.getElementById('cancelBtn').addEventListener('click', () => {
+                topicModal.style.display = 'none';
+            });
+            
+            document.getElementById('confirmBtn').addEventListener('click', () => {
+                const category = document.getElementById('topicCategory').value;
+                const name = document.getElementById('topicName').value.trim();
+                const emoji = document.getElementById('topicEmoji').value;
+                const desc = document.getElementById('topicDesc').value.trim();
+                
+                if (!name) {
+                    showWarningToast('Wpisz nazwę tematu');
+                    return;
+                }
+                
+                if (editingTopicIndex !== null) {
+                    topics[editingTopicIndex] = { name, description: desc, category, emoji, subtopics: topics[editingTopicIndex].subtopics };
+                    showSuccessToast(`✓ Temat "${name}" zaktualizowany`);
+                } else {
+                    topics.push({ name, description: desc, category, emoji, subtopics: [] });
+                    showSuccessToast(`✓ Temat "${name}" dodany`);
+                }
+                
+                localStorage.setItem('medicalTopics', JSON.stringify(topics));
+                renderTopics();
+                topicModal.style.display = 'none';
+            });
+            
+            topicModal.addEventListener('click', (e) => {
+                if (e.target === topicModal) topicModal.style.display = 'none';
+            });
+            
+            // Categories Modal
+            document.getElementById('manageCategoriesBtn').addEventListener('click', showManageCategories);
+            document.getElementById('closeCategoriesModal').addEventListener('click', () => {
+                categoriesModal.style.display = 'none';
+            });
+            
+            document.getElementById('addCategoryBtn').addEventListener('click', () => {
+                editingCategoryIndex = null;
+                document.getElementById('categoryModalTitle').textContent = 'Dodaj kategorię';
+                document.getElementById('categoryEmoji').value = '';
+                document.getElementById('categoryName').value = '';
+                document.getElementById('confirmCategoryBtn').textContent = 'Dodaj';
+                categoryEditModal.style.display = 'flex';
+                document.getElementById('categoryName').focus();
+            });
+            
+            // Category Edit Modal
+            document.getElementById('closeCategoryEditModal').addEventListener('click', () => {
+                categoryEditModal.style.display = 'none';
+            });
+            
+            document.getElementById('cancelCategoryBtn').addEventListener('click', () => {
+                categoryEditModal.style.display = 'none';
+            });
+            
+            document.getElementById('confirmCategoryBtn').addEventListener('click', () => {
+                const emoji = document.getElementById('categoryEmoji').value || '📂';
+                const name = document.getElementById('categoryName').value.trim();
+                
+                if (!name) {
+                    showWarningToast('Wpisz nazwę kategorii');
+                    return;
+                }
+                
+                if (editingCategoryIndex !== null) {
+                    categories[editingCategoryIndex] = { name, emoji };
+                    showSuccessToast(`✓ Kategoria "${name}" zaktualizowana`);
+                } else {
+                    categories.push({ name, emoji });
+                    showSuccessToast(`✓ Kategoria "${name}" dodana`);
+                }
+                
+                localStorage.setItem('medicalCategories', JSON.stringify(categories));
+                updateCategorySelect();
+                renderTopics();
+                categoryEditModal.style.display = 'none';
+            });
+            
+            categoryEditModal.addEventListener('click', (e) => {
+                if (e.target === categoryEditModal) categoryEditModal.style.display = 'none';
+            });
+            
+            categoriesModal.addEventListener('click', (e) => {
+                if (e.target === categoriesModal) categoriesModal.style.display = 'none';
+            });
+            
+            renderTopics();
+        });
+    </script>
+</body>
+</html>

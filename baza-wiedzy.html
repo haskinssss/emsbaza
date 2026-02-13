@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMS - Baza Wiedzy</title>
+    <link rel="icon" type="image/png" href="Emergency.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="knowledge-base-theme">
+    <nav class="top-navbar">
+        <div class="navbar-left">
+            <img src="Emergency.png" alt="EMS Logo" class="navbar-logo">
+            <h1>Strona Główna</h1>
+        </div>
+        <div class="navbar-right">
+            <div class="menu-container">
+                <button class="menu-btn">Menu ▼</button>
+                <div class="dropdown-menu">
+                    <a href="baza-wiedzy.html">🏠 Strona główna</a>
+                    <a href="ustawienia.html">⚙️ Ustawienia</a>
+                    <a href="#" id="logoutBtn">🚪 Wyloguj</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <main class="main-content">
+        <div class="welcome-section">
+            <h2>Witaj w Systemie EMS</h2>
+            <button class="user-profile-btn" id="userProfileBtn"><span id="userName">Ładowanie...</span></button>
+        </div>
+        
+        <div class="knowledge-base-container">
+            <div class="main-tile">
+                <div class="tile-icon">📚</div>
+                <h3>Kompendium Medyczne</h3>
+                <p>Baza wiedzy medycznej</p>
+                <a href="kompendium-medyczne.html" class="tile-button">Przejdź</a>
+            </div>
+        </div>
+    </main>
+    
+    <script src="auth.js"></script>
+    <script src="settings.js?v=20260213j"></script>
+</body>
+</html>

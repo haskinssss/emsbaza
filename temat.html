@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMS - Temat</title>
+    <link rel="icon" type="image/png" href="Emergency.png">
+    <link rel="stylesheet" href="styles.css?v=20260213h">
+</head>
+<body class="knowledge-base-theme">
+    <nav class="top-navbar">
+        <div class="navbar-left">
+            <img src="Emergency.png" alt="EMS Logo" class="navbar-logo">
+            <h1 id="topicTitle">📖 Temat</h1>
+        </div>
+        <div class="navbar-right">
+            <div class="menu-container">
+                <button class="menu-btn">Menu ▼</button>
+                <div class="dropdown-menu">
+                    <a href="baza-wiedzy.html">🏠 Strona główna</a>
+                    <a href="kompendium-medyczne.html">📚 Kompendium</a>
+                    <a href="ustawienia.html">⚙️ Ustawienia</a>
+                    <a href="#" id="logoutBtn">🚪 Wyloguj</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <main class="main-content">
+        <!-- Sekcja informacji o temacie -->
+        <div class="topic-info-section">
+            <div class="topic-info-card">
+                <div class="topic-info-field">
+                    <label for="topicNameInput">📚 Nazwa tematu:</label>
+                    <input type="text" id="topicNameInput" class="topic-input" readonly>
+                </div>
+                <div class="topic-info-field">
+                    <label for="topicDescInput">📝 Opis tematu:</label>
+                    <textarea id="topicDescInput" class="topic-textarea" rows="2" readonly></textarea>
+                </div>
+            </div>
+        </div>
+        
+        <div class="topic-layout">
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <h3>Podtematy</h3>
+                    <button class="add-subtopic-btn" id="addSubtopicBtn">+</button>
+                </div>
+                <div class="subtopics-list" id="subtopicsList">
+                    <!-- Lista podtematów -->
+                </div>
+            </div>
+            
+            <div class="content-area">
+                <div class="content-empty" id="emptyState">
+                    <p>Wybierz podtemat z listy lub dodaj nowy</p>
+                </div>
+                <div class="content-details" id="contentDetails" style="display: none;">
+                    <h2 id="subtopicTitle"></h2>
+                    <div id="subtopicContent"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Modal dodawania podtematu -->
+    <div class="modal" id="addSubtopicModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Dodaj podtemat</h3>
+                <button class="modal-close" id="closeSubtopicModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <label for="subtopicName">Nazwa:</label>
+                <input type="text" id="subtopicName" placeholder="np. Wstrząsy" maxlength="50">
+                
+                <label for="subtopicContentInput" style="margin-top: 15px;">Treść:</label>
+                <textarea id="subtopicContentInput" placeholder="Pełny opis..." rows="10"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" id="cancelSubtopicBtn">Anuluj</button>
+                <button class="btn-confirm" id="confirmSubtopicBtn">Dodaj</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="auth.js"></script>
+    <script src="settings.js?v=20260213j"></script>
+    <script>
+        // Pobierz ID tematu z URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const topicId = parseInt(urlParams.get('id'));
+        
+        let topics = JSON.parse(localStorage.getItem('medicalTopics')) || [];
+        let currentTopic = topics[topicId];
+        let selectedSubtopicIndex = null;
+        
+        if (!currentTopic) {
+            window.location.href = 'kompendium-medyczne.html';
+        }
+        
+        // Ustaw tytuł
+        document.getElementById('topicTitle').textContent = `📖 ${currentTopic.name}`;
+        
+        // Wypełnij pola informacyjne
+        document.getElementById('topicNameInput').value = currentTopic.name || '';
+        document.getElementById('topicDescInput').value = currentTopic.description || '';
+        
+        // Renderuj podtematy
+        function renderSubtopics() {
+            const list = document.getElementById('subtopicsList');
+            list.innerHTML = '';
+            
+            if (!currentTopic.subtopics) {
+                currentTopic.subtopics = [];
+            }
+            
+            if (currentTopic.subtopics.length === 0) {
+                list.innerHTML = '<p style="color: var(--text-secondary); font-size: 0.9rem; text-align: center; padding: 20px 10px;">Brak podtematów</p>';
+            }
+            
+            currentTopic.subtopics.forEach((subtopic, index) => {
+                const item = document.createElement('div');
+                item.className = 'subtopic-item';
+                if (selectedSubtopicIndex === index) {
+                    item.classList.add('active');
+                }
+                item.innerHTML = `
+                    <span>${subtopic.name}</span>
+                    <button class="delete-subtopic-btn" data-index="${index}" title="Usuń podtemat">🗑️</button>
+                `;
+                
+                item.addEventListener('click', function(e) {
+                    if (!e.target.classList.contains('delete-subtopic-btn')) {
+                        showSubtopic(index);
+                    }
+                });
+                
+                list.appendChild(item);
+            });
+            
+            // Usuń podtemat
+            document.querySelectorAll('.delete-subtopic-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const index = parseInt(this.getAttribute('data-index'));
+                    const subtopicName = currentTopic.subtopics[index].name;
+                    
+                    showDeleteConfirmation(subtopicName, () => {
+                        currentTopic.subtopics.splice(index, 1);
+                        topics[topicId] = currentTopic;
+                        localStorage.setItem('medicalTopics', JSON.stringify(topics));
+                        selectedSubtopicIndex = null;
+                        renderSubtopics();
+                        hideContent();
+                        showErrorToast(`Podtemat "${subtopicName}" został usunięty`);
+                    });
+                });
+            });
+        }
+        
+        // Dialog potwierdzenia usunięcia
+        function showDeleteConfirmation(subtopicName, onConfirm) {
+            const backdrop = document.createElement('div');
+            backdrop.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 5000;';
+            
+            const dialog = document.createElement('div');
+            dialog.style.cssText = 'background: var(--bg-card); border-radius: 16px; padding: 30px; max-width: 500px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);';
+            dialog.innerHTML = `
+                <h3 style="margin-bottom: 10px; color: var(--text-primary);">Potwierdzenie usunięcia</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 30px;">Czy na pewno chcesz usunąć podtemat "<strong>${subtopicName}</strong>"? Tej operacji nie można cofnąć.</p>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button style="background: rgba(255,255,255,0.1); color: var(--text-primary); border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s;" class="btn-cancel-delete">Anuluj</button>
+                    <button style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s;" class="btn-confirm-delete">Usuń</button>
+                </div>
+            `;
+            
+            backdrop.appendChild(dialog);
+            document.body.appendChild(backdrop);
+            
+            dialog.querySelector('.btn-cancel-delete').addEventListener('click', () => {
+                backdrop.remove();
+            });
+            
+            dialog.querySelector('.btn-confirm-delete').addEventListener('click', () => {
+                backdrop.remove();
+                onConfirm();
+            });
+            
+            backdrop.addEventListener('click', (e) => {
+                if (e.target === backdrop) {
+                    backdrop.remove();
+                }
+            });
+        }
+        
+        // Pokaż szczegóły podtematu
+        function showSubtopic(index) {
+            selectedSubtopicIndex = index;
+            const subtopic = currentTopic.subtopics[index];
+            
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('contentDetails').style.display = 'block';
+            document.getElementById('subtopicTitle').textContent = subtopic.name;
+            document.getElementById('subtopicContent').innerHTML = subtopic.content.replace(/\n/g, '<br>');
+            
+            renderSubtopics();
+        }
+        
+        // Ukryj szczegóły
+        function hideContent() {
+            document.getElementById('emptyState').style.display = 'flex';
+            document.getElementById('contentDetails').style.display = 'none';
+        }
+        
+        // Obsługa modalu
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSubtopics();
+            
+            const modal = document.getElementById('addSubtopicModal');
+            const addBtn = document.getElementById('addSubtopicBtn');
+            const closeBtn = document.getElementById('closeSubtopicModal');
+            const cancelBtn = document.getElementById('cancelSubtopicBtn');
+            const confirmBtn = document.getElementById('confirmSubtopicBtn');
+            const nameInput = document.getElementById('subtopicName');
+            const contentInput = document.getElementById('subtopicContentInput');
+            
+            addBtn.addEventListener('click', () => {
+                modal.style.display = 'flex';
+                nameInput.value = '';
+                contentInput.value = '';
+                nameInput.focus();
+            });
+            
+            const closeModal = () => {
+                modal.style.display = 'none';
+            };
+            
+            closeBtn.addEventListener('click', closeModal);
+            cancelBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+            
+            confirmBtn.addEventListener('click', () => {
+                const name = nameInput.value.trim();
+                const content = contentInput.value.trim();
+                
+                if (!name) {
+                    showWarningToast('Wpisz nazwę podtematu');
+                    nameInput.focus();
+                    return;
+                }
+                
+                if (!content) {
+                    showWarningToast('Wpisz treść podtematu');
+                    contentInput.focus();
+                    return;
+                }
+                
+                currentTopic.subtopics.push({ name, content });
+                topics[topicId] = currentTopic;
+                localStorage.setItem('medicalTopics', JSON.stringify(topics));
+                renderSubtopics();
+                closeModal();
+                showSuccessToast(`✓ Podtemat "${name}" został dodany`);
+            });
+            
+            // Enter w polu nazwy
+            nameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    contentInput.focus();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMS - Ustawienia</title>
+    <link rel="icon" type="image/png" href="Emergency.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="knowledge-base-theme">
+    <nav class="top-navbar">
+        <div class="navbar-left">
+            <img src="Emergency.png" alt="EMS Logo" class="navbar-logo">
+            <h1>Ustawienia</h1>
+        </div>
+        <div class="navbar-right">
+            <div class="menu-container">
+                <button class="menu-btn">Menu ▼</button>
+                <div class="dropdown-menu">
+                    <a href="baza-wiedzy.html">🏠 Strona główna</a>
+                    <a href="ustawienia.html">⚙️ Ustawienia</a>
+                    <a href="#" id="logoutBtn">🚪 Wyloguj</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <main class="main-content">
+        <div class="welcome-section">
+            <h2>Ustawienia Systemu</h2>
+            <button class="user-profile-btn" id="userProfileBtn"><span id="userName">Ładowanie...</span></button>
+        </div>
+        
+        <div class="settings-container">
+            <div class="setting-card">
+                <div class="setting-header">
+                    <h3>🎨 Tryb wyświetlania</h3>
+                </div>
+                <div class="setting-content">
+                    <p>Wybierz tryb wyświetlania interfejsu</p>
+                    <div class="setting-control">
+                        <button class="theme-toggle-btn" id="themeToggle">
+                            <span class="theme-icon">🌙</span>
+                            <span class="theme-text">Dark Mode</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="setting-card">
+                <div class="setting-header">
+                    <h3>🎨 Kolor Obramowania <span style="background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%); padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-left: 10px; box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);">BETA</span></h3>
+                </div>
+                <div class="setting-content">
+                    <p>Wybierz swój ulubiony kolor dla obramowań i efektów glow'u</p>
+                    <p style="font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-top: 8px; font-style: italic;">⚠️ Funkcja w fazie testów - niektóre elementy mogą nie zmieniać koloru poprawnie</p>
+                    <div class="setting-control" style="flex-direction: column; align-items: flex-start;">
+                        <div class="accent-presets">
+                            <button class="accent-preset" data-color="#8b5cf6" style="background: #8b5cf6;" title="Purpurowy">💜</button>
+                            <button class="accent-preset" data-color="#3b82f6" style="background: #3b82f6;" title="Niebieski">💙</button>
+                            <button class="accent-preset" data-color="#10b981" style="background: #10b981;" title="Zielony">💚</button>
+                            <button class="accent-preset" data-color="#f59e0b" style="background: #f59e0b;" title="Pomarańczowy">🧡</button>
+                            <button class="accent-preset" data-color="#ef4444" style="background: #ef4444;" title="Czerwony">❤️</button>
+                            <button class="accent-preset" data-color="#06b6d4" style="background: #06b6d4;" title="Cyan">💎</button>
+                            <button class="accent-preset" data-color="#ec4899" style="background: #ec4899;" title="Różowy">🌸</button>
+                        </div>
+                        <div style="margin-top: 15px; width: 100%;">
+                            <label for="accentColorPicker" style="display: block; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; color: rgba(255,255,255,0.7);">Wybierz własny kolor:</label>
+                            <input type="color" id="accentColorPicker" style="width: 60px; height: 40px; border: 2px solid rgba(139, 92, 246, 0.5); border-radius: 8px; cursor: pointer;" value="#8b5cf6">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="setting-card">
+                <div class="setting-header">
+                    <h3>🔔 Animacje</h3>
+                </div>
+                <div class="setting-content">
+                    <p>Włącz lub wyłącz animacje interfejsu</p>
+                    <div class="setting-control">
+                        <label class="switch">
+                            <input type="checkbox" id="animationsToggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <span class="switch-label">Animacje włączone</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script src="auth.js"></script>
+    <script src="settings.js?v=20260213j"></script>
+    <script>
+        // Obsługa przełącznika motywu
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = themeToggle.querySelector('.theme-icon');
+            const themeText = themeToggle.querySelector('.theme-text');
+            const animationsToggle = document.getElementById('animationsToggle');
+            const switchLabel = document.querySelector('.switch-label');
+            
+            // Załaduj aktualne ustawienia
+            const settings = window.emsSettings.load();
+            
+            // Ustaw stan przycisków
+            if (settings.darkMode) {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'Dark Mode';
+            } else {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'Light Mode';
+            }
+            
+            animationsToggle.checked = settings.animations;
+            switchLabel.textContent = settings.animations ? 'Animacje włączone' : 'Animacje wyłączone';
+            
+            // Przełącznik dark/light mode
+            themeToggle.addEventListener('click', () => {
+                window.emsSettings.toggleDarkMode();
+                const newSettings = window.emsSettings.load();
+                
+                if (newSettings.darkMode) {
+                    themeIcon.textContent = '🌙';
+                    themeText.textContent = 'Dark Mode';
+                    showSuccessToast('✓ Włączono tryb ciemny');
+                } else {
+                    themeIcon.textContent = '☀️';
+                    themeText.textContent = 'Light Mode';
+                    showSuccessToast('✓ Włączono tryb jasny');
+                }
+            });
+            
+            // Przełącznik animacji
+            animationsToggle.addEventListener('change', () => {
+                window.emsSettings.toggleAnimations();
+                const newSettings = window.emsSettings.load();
+                switchLabel.textContent = newSettings.animations ? 'Animacje włączone' : 'Animacje wyłączone';
+                
+                if (newSettings.animations) {
+                    showSuccessToast('✓ Animacje włączone');
+                } else {
+                    showErrorToast('Animacje wyłączone');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
