@@ -179,7 +179,9 @@ function generateAccentCSS(hexColor, rgb) {
             border-color: rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.7) !important;
             box-shadow: 0 6px 20px rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.5) !important;
         }
-        
+        .modal-footer {
+            border-top: 2px solid rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.5) !important;
+        }
         .card-btn {
             border: 2px solid rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.5) !important;
             box-shadow: 0 2px 8px rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.2) !important;
