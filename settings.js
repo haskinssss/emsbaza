@@ -157,6 +157,21 @@ function generateAccentCSS(hexColor, rgb) {
             border: 2px solid rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.3) !important; 
             background: rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.1) !important;
         }
+
+        .emoji-picker-container span {
+            border-color: rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.4) !important;
+            box-shadow: 0 2px 8px rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.2) !important;
+        }
+
+        .emoji-picker-container span:hover {
+            border-color: rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.7) !important;
+            box-shadow: 0 6px 20px rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.4) !important;
+        }
+
+        .emoji-picker-container span.selected {
+            border-color: rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.9) !important;
+            box-shadow: 0 8px 25px rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.6), inset 0 0 0 2px rgba(255,255,255,0.15) !important;
+        }
         .modal-body input, .modal-body textarea, .modal-body select {
             border: 2px solid rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.4) !important;
             box-shadow: 0 2px 4px rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.1) !important;
@@ -200,6 +215,39 @@ function generateAccentCSS(hexColor, rgb) {
         .theme-toggle-btn:hover {
             border-color: rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.7) !important;
             box-shadow: 0 6px 20px rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.4) !important;
+        }
+
+        .knowledge-base-theme {
+            background: radial-gradient(circle at 60% 68%, rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.18) 0%, rgba(0, 0, 0, 0) 72%), #000000 !important;
+        }
+
+        .topics-search {
+            border-color: rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.5) !important;
+            box-shadow: 0 4px 15px rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.25) !important;
+        }
+
+        .topics-search:focus-within {
+            border-color: rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.7) !important;
+            box-shadow: 0 6px 20px rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.35) !important;
+        }
+
+        .topics-search-clear {
+            border: 1px solid rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.3) !important;
+        }
+
+        .topics-search-clear:hover {
+            border-color: rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.6) !important;
+            box-shadow: 0 4px 12px rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.3) !important;
+        }
+
+        .discord-btn {
+            border-color: rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.6) !important;
+            box-shadow: 0 8px 24px rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.25) !important;
+        }
+
+        .discord-btn:hover {
+            border-color: rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.85) !important;
+            box-shadow: 0 12px 32px rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.45) !important;
         }
         
         #categoriesList::-webkit-scrollbar-thumb {
@@ -256,6 +304,16 @@ function generateAccentCSS(hexColor, rgb) {
         /* Firefox scrollbar */
         html * {
             scrollbar-color: ${hexColor} var(--bg-primary) !important;
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, ${hexColor} 0%, rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.8) 100%) !important;
+            border: 2px solid var(--bg-primary) !important;
+            border-radius: 10px !important;
+        }
+
+        *::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.9) 0%, ${hexColor} 100%) !important;
         }
         
         ::-webkit-scrollbar-thumb {
@@ -335,6 +393,25 @@ function generateAccentCSS(hexColor, rgb) {
             border-color: rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.7) !important;
             color: rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 1) !important;
             box-shadow: 0 4px 12px rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.4) !important;
+        }
+
+        .category-card {
+            border-color: rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.45) !important;
+        }
+
+        .category-card:hover {
+            border-color: rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.75) !important;
+            box-shadow: 0 4px 15px rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.3) !important;
+        }
+
+        .menu-btn {
+            border-color: rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.6) !important;
+            box-shadow: 0 2px 8px rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.2) !important;
+        }
+
+        .menu-btn:hover {
+            border-color: rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.85) !important;
+            box-shadow: 0 6px 18px rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.4) !important;
         }
         
         .main-tile {

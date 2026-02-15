@@ -33,6 +33,10 @@
                 <button class="add-topic-btn" id="addTopicBtn">+ Dodaj temat</button>
                 <button class="add-topic-btn" id="manageCategoriesBtn">🏷️ Zarządzaj kategoriami</button>
             </div>
+            <div class="topics-search">
+                <input type="text" id="topicsSearch" class="topics-search-input" placeholder="Szukaj tematow..." autocomplete="off">
+                <button class="topics-search-clear" id="clearSearchBtn" title="Wyczysc" aria-label="Wyczysc wyszukiwanie">×</button>
+            </div>
         </div>
         
         <div class="knowledge-base-container">
@@ -60,7 +64,7 @@
                 <div class="emoji-picker-container">
                     <input type="text" id="topicEmoji" placeholder="Wybrane emoji pojawi się tutaj" maxlength="1" class="emoji-input">
                     <div id="emojiSuggestions" class="emoji-suggestions">
-                        😀 😃 😄 😁 😆 😅 🤣 😂 🫀 💪 🔴 💊 🚑 📋 📖 🧬 🦴 👁️ 🧠 ❤️ 🫁
+                        🫀 💪 🩺 🏥 ⚕️ 💉 🩹 🧪 🧫 🔬 🧬 🦠 🦴 🦷 👁️ 🧠 ❤️ 🫁 🫂 🫃 🩻 🩼 🦽 🦯 🩸 🩹 💊 💉 🩺 🧴 🧯 🧰 🛠️ 🧷 🧻 🚑 🚨 🆘 ⛑️ 📋 📖 📚 📈 📉 🤒 🤕 😷 🥵 🥶 🤢 🤮 🤧 😵‍💫 🫨 🫁 🫀 🧑‍⚕️ 👨‍⚕️ 👩‍⚕️
                     </div>
                 </div>
                 
@@ -100,7 +104,7 @@
                 <div class="emoji-picker-container">
                     <input type="text" id="categoryEmoji" placeholder="Wybrane emoji pojawi się tutaj" maxlength="1" class="emoji-input">
                     <div id="categoryEmojiSuggestions" class="emoji-suggestions">
-                        🫀 💪 🔴 💊 🚑 📋 📖 🧬 🦴 👁️ 🧠 ❤️ 🫁 🩺 🏥 ⚕️ 💉 🔬 🩹
+                        🫀 💪 🩺 🏥 ⚕️ 💉 🩹 🧪 🧫 🔬 🧬 🦠 🦴 🦷 👁️ 🧠 ❤️ 🫁 🫂 🫃 🩻 🩼 🦽 🦯 🩸 🩹 💊 💉 🩺 🧴 🧯 🧰 🛠️ 🧷 🧻 🚑 🚨 🆘 ⛑️ 📋 📖 📚 📈 📉 🤒 🤕 😷 🥵 🥶 🤢 🤮 🤧 😵‍💫 🫨 🧑‍⚕️ 👨‍⚕️ 👩‍⚕️
                     </div>
                 </div>
                 
@@ -131,6 +135,18 @@
         let categories = JSON.parse(localStorage.getItem('medicalCategories')) || DEFAULT_CATEGORIES;
         let editingTopicIndex = null;
         let editingCategoryIndex = null;
+        let searchQuery = '';
+
+        function normalizeText(value) {
+            return (value || '').toLowerCase();
+        }
+
+        function topicMatchesQuery(topic, query) {
+            const haystack = [topic.name, topic.description, topic.category]
+                .map(normalizeText)
+                .join(' ');
+            return haystack.includes(query);
+        }
         
         // Aktualizuj dropdown kategorii
         function updateCategorySelect() {
@@ -149,18 +165,24 @@
             const grid = document.getElementById('topicsGrid');
             grid.innerHTML = '';
             
-            if (topics.length === 0) {
-                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 40px;">Brak tematów. Dodaj pierwszy temat!</p>';
+            const query = normalizeText(searchQuery).trim();
+            const visibleTopics = query ? topics.filter(topic => topicMatchesQuery(topic, query)) : topics;
+            
+            if (visibleTopics.length === 0) {
+                const emptyMessage = query
+                    ? `Brak tematow pasujacych do "${searchQuery.trim()}".`
+                    : 'Brak tematow. Dodaj pierwszy temat!';
+                grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 40px;">${emptyMessage}</p>`;
                 return;
             }
             
             const groupedTopics = {};
-            topics.forEach((topic, index) => {
+            visibleTopics.forEach((topic, index) => {
                 const category = topic.category || 'Inne';
                 if (!groupedTopics[category]) {
                     groupedTopics[category] = [];
                 }
-                groupedTopics[category].push({ ...topic, index });
+                groupedTopics[category].push({ ...topic, index: topics.indexOf(topic) });
             });
             
             Object.keys(groupedTopics).forEach(category => {
@@ -341,6 +363,34 @@
             setupEmojiPicker('topicEmoji', 'emojiSuggestions');
             setupEmojiPicker('categoryEmoji', 'categoryEmojiSuggestions');
             updateCategorySelect();
+
+            const searchInput = document.getElementById('topicsSearch');
+            const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+            const updateClearButton = () => {
+                if (!clearSearchBtn) return;
+                clearSearchBtn.style.display = searchInput && searchInput.value ? 'flex' : 'none';
+            };
+
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    searchQuery = e.target.value || '';
+                    updateClearButton();
+                    renderTopics();
+                });
+            }
+
+            if (clearSearchBtn && searchInput) {
+                clearSearchBtn.addEventListener('click', () => {
+                    searchQuery = '';
+                    searchInput.value = '';
+                    updateClearButton();
+                    renderTopics();
+                    searchInput.focus();
+                });
+            }
+
+            updateClearButton();
             
             const topicModal = document.getElementById('addTopicModal');
             const categoriesModal = document.getElementById('manageCategoriesModal');
